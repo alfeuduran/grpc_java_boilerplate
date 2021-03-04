@@ -11,13 +11,14 @@ public class GreetingServer {
         System.out.println("Hello GRPC!");
 
         Server server = ServerBuilder.forPort(50051)
+                .addService(new GreetServiceImpl())
                 .build();
 
         server.start();
 
         //Gracefuly shutdown
         Runtime.getRuntime().addShutdownHook(new Thread( () -> {
-            System.out.println("Received SHutdown Request");
+            System.out.println("Received Shutdown Request");
             server.shutdown();
             System.out.println("Successfully sttoped the server");
         }));
