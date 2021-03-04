@@ -42,13 +42,8 @@ public class GreetingClient {
 
         System.out.println(greetResponse.getResult());
 
-
-
         System.out.println("Shutting down channel");
         channel.shutdown();
-
-
-
 
 
     }
