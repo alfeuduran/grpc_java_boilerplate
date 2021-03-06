@@ -52,9 +52,10 @@ public class GreetingClient {
             System.out.println(greetManyTimesResponse.getResult());
         });
 
-
         System.out.println("Shutting down channel");
         channel.shutdown();
+
+
 
 
     }

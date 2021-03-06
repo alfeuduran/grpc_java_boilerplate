@@ -1,6 +1,7 @@
 package com.github.alfeuduran.grpc.greeting.server;
 
 import com.proto.greet.*;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
 public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
@@ -47,5 +48,35 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
         }finally {
             responseObserver.onCompleted();
         }
+    }
+
+    @Override
+    public StreamObserver<LongGreetRequest> longGreet(StreamObserver<LongGreetResponse> responseObserver) {
+        StreamObserver<LongGreetRequest> streamObserverOfReqeust = new StreamObserver<LongGreetRequest>() {
+
+            String result = "";
+            @Override
+            public void onNext(LongGreetRequest value) {
+                result += "Hello" + value.getGreeting().getFirstName() + "! ";
+            }
+
+            @Override
+            public void onError(Throwable t) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                responseObserver.onNext(
+                        LongGreetResponse.newBuilder()
+                        .setResult(result)
+                        .build()
+                );
+                // nessa caso mandamos como response o final result string.
+                responseObserver.onCompleted();
+
+            }
+        };
+        return streamObserverOfReqeust;
     }
 }
