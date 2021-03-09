@@ -1,13 +1,16 @@
 package com.github.alfeuduran.grpc.greeting.client;
 
+import com.github.alfeuduran.grpc.greeting.server.GreetingServer;
 import com.proto.dummy.DummyServiceGrpc;
 import com.proto.greet.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.CheckedOutputStream;
 
 public class GreetingClient {
 
@@ -26,7 +29,9 @@ public class GreetingClient {
 
         //doUnaryCall(channel);
         //doServerStreamingCall(channel);
-        doClientStreamingCall(channel);
+        //doClientStreamingCall(channel);
+
+        doBiDiStreamingCall(channel);
 
         System.out.println("Shutting down channel");
         channel.shutdown();
@@ -145,6 +150,42 @@ public class GreetingClient {
         requestObserver.onCompleted();
 
         latch.await(3L, TimeUnit.SECONDS);
+    }
+
+    private void doBiDiStreamingCall(ManagedChannel channel)  throws InterruptedException  {
+        GreetServiceGrpc.GreetServiceStub asyncClient = GreetServiceGrpc.newStub(channel);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<GreetEveryOneRequest> requestObserver =  asyncClient.greetEveryone(new StreamObserver<GreetEveryOneResponse>() {
+            @Override
+            public void onNext(GreetEveryOneResponse value) {
+                //Todas as vezes que recebermos um retorno do server
+                System.out.println("Response from Server: " + value.getResult());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                latch.countDown();
+
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("Server is done sending data");
+                latch.countDown();
+            }
+        });
+
+        Arrays.asList("Alfeu", "Duran", "Santos").forEach(name -> requestObserver.onNext(GreetEveryOneRequest.newBuilder().
+                setGreeting(Greeting.newBuilder().
+                        setFirstName(name)).
+                build()));
+
+
+        requestObserver.onCompleted();
+
+        latch.await(3,TimeUnit.SECONDS);
+
     }
 
 }
