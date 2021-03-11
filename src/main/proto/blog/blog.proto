@@ -23,7 +23,7 @@ message CreateBlogResponse{
 }
 
 message ReadBlogRequest{
-  string blog_id;
+  string blog_id = 1 ;
 
 }
 

@@ -1,10 +1,7 @@
 package com.github.alfeuduran.grpc.greeting.blog.client;
 
 import com.github.alfeuduran.grpc.greeting.client.GreetingClient;
-import com.proto.blog.Blog;
-import com.proto.blog.BlogServiceGrpc;
-import com.proto.blog.CreateBlogRequest;
-import com.proto.blog.CreateBlogResponse;
+import com.proto.blog.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -42,11 +39,13 @@ public class BlogClient {
         System.out.println("Received create blog response from the client");
         System.out.println(createResponse.toString());
 
+        String blogId = createResponse.getBlog().getId();
 
+        ReadBlogResponse readBlogResponse = blogClient.readBlog(ReadBlogRequest.newBuilder()
+                .setBlogId(blogId)
+                .build());
 
-
-
-
+        System.out.println(readBlogResponse.toString());
 
     }
 
